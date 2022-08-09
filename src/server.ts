@@ -1,5 +1,7 @@
 import express from "express";
 import ponyData from "../data/ponies.json";
+import helloData from "../data/hello-world.json"
+import historyData from "../data/history.json"
 import { seasonOneEpisodes } from "./episodes";
 import { pickRandom } from "./random";
 
@@ -7,10 +9,16 @@ const app = express();
 const serverStartDate = new Date();
 let serverHitCount = 0;
 
+app.get("/history", (req, res) => {
+  res.json(historyData);
+  historyData.routes.push("/history");
+})
+
 app.get("/", (req, res) => {
   res.send(
     "This is the default path - and it isn't very interesting, sorry. \nTry visiting localhost:4000/creation-time, localhost:4000/current-time"
   );
+  historyData.routes.push("/");
 });
 
 app.get("/creation-time", (req, res) => {
@@ -19,6 +27,7 @@ app.get("/creation-time", (req, res) => {
     utc: serverStartDate.toUTCString(),
     countedAsHit: false,
   });
+  historyData.routes.push("/creation-time")
 });
 
 app.get("/current-time", (req, res) => {
@@ -29,6 +38,7 @@ app.get("/current-time", (req, res) => {
     utc: dateOfRequestHandling.toUTCString(),
     countedAsHit: false,
   });
+  historyData.routes.push("/current-time")
 });
 
 app.get("/hits", (req, res) => {
@@ -38,6 +48,8 @@ app.get("/hits", (req, res) => {
     currentTotal: serverHitCount,
     countedAsHit: true,
   });
+  historyData.routes.push("/hits")
+
 });
 
 app.get("/hits-stealth", (req, res) => {
@@ -46,6 +58,8 @@ app.get("/hits-stealth", (req, res) => {
     currentTotal: serverHitCount,
     countedAsHit: false,
   });
+  historyData.routes.push("/hits-stealth");
+
 });
 
 app.get("/ponies", (req, res) => {
@@ -54,6 +68,28 @@ app.get("/ponies", (req, res) => {
     data: ponyData,
     countedAsHit: false,
   });
+  historyData.routes.push("/ponies")
+
+});
+
+app.get("/ponies/random", (req, res) => {
+  res.json({
+    message: "Loaded random pony data:",
+    data: pickRandom(ponyData.members),
+    countedAsHit: false,
+  });
+  historyData.routes.push("/ponies/random");
+
+})
+
+app.get("/hello-world", (req, res) => {
+  res.json({
+    message: "Loaded hello world translation data:",
+    data: helloData,
+    countedAsHit: false,
+  });
+  historyData.routes.push("/hello-world");
+
 });
 
 app.get("/season-one", (req, res) => {
@@ -61,6 +97,8 @@ app.get("/season-one", (req, res) => {
     countedAsHit: false,
     data: seasonOneEpisodes,
   });
+  historyData.routes.push("/season-one");
+
 });
 
 app.get("/season-one/random", (req, res) => {
@@ -69,10 +107,12 @@ app.get("/season-one/random", (req, res) => {
     countedAsHit: false,
     data: randomEpisode,
   });
+  historyData.routes.push("/season-one/random");
+
 });
 
 // using 4000 by convention, but could be changed
-const PORT_NUMBER = 4000;
+const PORT_NUMBER = 5000;
 
 app.listen(PORT_NUMBER, () => {
   console.log(
